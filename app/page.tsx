@@ -2,10 +2,11 @@ import Image from "next/image";
 import Header from "./components/header";
 import SearchInput from "./components/search-input";
 import banner from "../public/banner.png";
+import BookingItem from "./components/booking-item";
 
 const Home = () => {
   return (
-    <div>
+    <main>
       <Header />
       <div className="space-y-4 px-5">
         <SearchInput />
@@ -15,8 +16,17 @@ const Home = () => {
           sizes="100vw"
           className="h-auto w-full"
         />
+        <h2 className="text-foreground text-xs font-semibold uppercase">
+          Agendamentos
+        </h2>
+        <BookingItem
+          serviceName="Corte de cabelo"
+          barbershopName="Barbearia do João"
+          barbershopImageUrl="https://utfs.io/f/c97a2dc9-cf62-468b-a851-bfd2bdde775f-16p.png"
+          date={new Date()}
+        />
       </div>
-    </div>
+    </main>
   );
 };
 

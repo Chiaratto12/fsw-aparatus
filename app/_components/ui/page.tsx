@@ -2,11 +2,7 @@ export const PageContainer = ({ children }: { children: React.ReactNode }) => {
   return <div className="space-y-6 p-5">{children}</div>;
 };
 
-export const PageSectionTitle = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const PageSectionTitle = ({ children }: { children: string }) => {
   return (
     <h2 className="text-foreground text-xs font-semibold uppercase">
       {children}
@@ -15,7 +11,7 @@ export const PageSectionTitle = ({
 };
 
 export const PageSection = ({ children }: { children: React.ReactNode }) => {
-  return <h2 className="space-y-3">{children}</h2>;
+  return <div className="space-y-3">{children}</div>;
 };
 
 export const PageSectionScroller = ({
@@ -24,8 +20,8 @@ export const PageSectionScroller = ({
   children: React.ReactNode;
 }) => {
   return (
-    <h2 className="[&:: -webkit-scrollbar]:hidden flex gap-4 overflow-x-auto">
+    <div className="flex gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden">
       {children}
-    </h2>
+    </div>
   );
 };

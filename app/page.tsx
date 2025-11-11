@@ -1,17 +1,17 @@
 import Image from "next/image";
-import Header from "./components/header";
-import SearchInput from "./components/search-input";
+import Header from "./_components/header";
+import SearchInput from "./_components/search-input";
 import banner from "../public/banner.png";
-import BookingItem from "./components/booking-item";
+import BookingItem from "./_components/booking-item";
 import { prisma } from "@/lib/prisma";
-import BarbershopItem from "./components/barbershop-item";
-import Footer from "./components/footer";
+import BarbershopItem from "./_components/barbershop-item";
+import Footer from "./_components/footer";
 import {
   PageContainer,
   PageSection,
   PageSectionScroller,
   PageSectionTitle,
-} from "./components/ui/page";
+} from "./_components/ui/page";
 
 const Home = async () => {
   const recommendedBarberShops = await prisma.barberShop.findMany({

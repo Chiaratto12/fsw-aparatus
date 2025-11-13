@@ -14,14 +14,14 @@ import {
 } from "./_components/ui/page";
 
 const Home = async () => {
-  const recommendedBarberShops = await prisma.barberShop.findMany({
+  const recommendedBarbershops = await prisma.barberShop.findMany({
     orderBy: {
       name: "asc",
     },
   });
-  const popularBarberShops = await prisma.barberShop.findMany({
+  const popularBarbershops = await prisma.barberShop.findMany({
     orderBy: {
-      name: "asc",
+      name: "desc",
     },
   });
   return (
@@ -42,21 +42,24 @@ const Home = async () => {
             barbershopName="Barbearia do João"
             barbershopImageUrl="https://utfs.io/f/c97a2dc9-cf62-468b-a851-bfd2bdde775f-16p.png"
             date={new Date()}
+            status="confirmed"
           />
         </PageSection>
+
         <PageSection>
           <PageSectionTitle>Recomendados</PageSectionTitle>
           <PageSectionScroller>
-            {recommendedBarberShops.map((barberShop) => (
-              <BarbershopItem key={barberShop.id} barbershop={barberShop} />
+            {recommendedBarbershops.map((barbershop) => (
+              <BarbershopItem key={barbershop.id} barbershop={barbershop} />
             ))}
-          </PageSectionScroller>{" "}
+          </PageSectionScroller>
         </PageSection>
+
         <PageSection>
           <PageSectionTitle>Populares</PageSectionTitle>
           <PageSectionScroller>
-            {popularBarberShops.map((barberShop) => (
-              <BarbershopItem key={barberShop.id} barbershop={barberShop} />
+            {popularBarbershops.map((barbershop) => (
+              <BarbershopItem key={barbershop.id} barbershop={barbershop} />
             ))}
           </PageSectionScroller>
         </PageSection>

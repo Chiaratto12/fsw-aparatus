@@ -1,6 +1,6 @@
-import { Badge } from "./ui/badge";
-import { Card } from "./ui/card";
-import { Avatar } from "./ui/avatar";
+import { Badge } from "@/app/_components/ui/badge";
+import { Card } from "@/app/_components/ui/card";
+import { Avatar } from "@/app/_components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 
 interface BookingItemProps {

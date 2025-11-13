@@ -130,7 +130,7 @@ export function ServiceItem({ service }: ServiceItemProps) {
             <SheetTitle className="text-lg font-bold">Fazer Reserva</SheetTitle>
           </SheetHeader>
 
-          <div className="flex flex-col gap-4 px-5">
+          <div className="relative z-[1] flex flex-col gap-4 px-5">
             <Calendar
               mode="single"
               selected={selectedDate}
@@ -145,7 +145,7 @@ export function ServiceItem({ service }: ServiceItemProps) {
             <>
               <Separator />
 
-              <div className="flex gap-3 overflow-x-auto px-5 [&::-webkit-scrollbar]:hidden">
+              <div className="relative z-[5] flex gap-3 overflow-x-auto px-5 [&::-webkit-scrollbar]:hidden">
                 {availableTimeSlots?.data?.map((time) => (
                   <Button
                     key={time}

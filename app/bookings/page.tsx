@@ -1,63 +1,85 @@
-import { Badge } from "@/app/_components/ui/badge";
-import { Card } from "@/app/_components/ui/card";
-import { Avatar } from "@/app/_components/ui/avatar";
-import { AvatarImage } from "@radix-ui/react-avatar";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import Header from "../_components/header";
+import Footer from "../_components/footer";
+import {
+  PageContainer,
+  PageSection,
+  PageSectionTitle,
+} from "../_components/ui/page";
+import BookingItem from "../_components/booking-item";
 
-interface BookingItemProps {
-  serviceName: string;
-  barbershopName: string;
-  barbershopImageUrl: string;
-  date: Date;
-  status: "confirmed" | "finished";
-}
+const BookingsPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-const BookingItem = ({
-  serviceName,
-  barbershopName,
-  barbershopImageUrl,
-  date,
-  status,
-}: BookingItemProps) => {
+  if (!session) {
+    redirect("/");
+  }
+
+  const bookings = await prisma.booking.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    include: {
+      service: true,
+      barbershop: true, // ✅ CORRETO - igual ao schema
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
+
+  const now = new Date();
+
+  const confirmedBookings = bookings.filter(
+    (booking) => !booking.cancelled && new Date(booking.date) >= now,
+  );
+
+  const finishedBookings = bookings.filter(
+    (booking) => booking.cancelled || new Date(booking.date) < now,
+  );
+
   return (
-    <Card className="flex h-full w-full min-w-full flex-row items-center justify-between p-0">
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <Badge
-          className={
-            status === "confirmed"
-              ? "bg-primary/10 text-primary uppercase"
-              : "bg-muted text-muted-foreground uppercase"
-          }
-        >
-          {status === "confirmed" ? "Confirmado" : "Finalizado"}
-        </Badge>
+    <main>
+      <Header />
+      <PageContainer>
+        <h1 className="text-foreground text-xl font-bold">Agendamentos</h1>
 
-        <div className="flex flex-col gap-2">
-          <p className="font-bold">{serviceName}</p>
-          <div className="flex items-center gap-2">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={barbershopImageUrl} />
-            </Avatar>
-            <p className="text-sm">{barbershopName}</p>
-          </div>
-        </div>
-      </div>
+        {confirmedBookings.length > 0 && (
+          <PageSection>
+            <PageSectionTitle>Confirmados</PageSectionTitle>
+            <div className="space-y-3">
+              {confirmedBookings.map((booking) => (
+                <BookingItem key={booking.id} booking={booking} />
+              ))}
+            </div>
+          </PageSection>
+        )}
 
-      <div className="flex h-full w-[106px] flex-col items-center justify-center border-l py-3">
-        <p className="text-xs capitalize">
-          {date.toLocaleDateString("pt-BR", { month: "long" })}
-        </p>
-        <p className="text-2xl">
-          {date.toLocaleDateString("pt-BR", { day: "2-digit" })}
-        </p>
-        <p className="text-xs">
-          {date.toLocaleTimeString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </p>
-      </div>
-    </Card>
+        {finishedBookings.length > 0 && (
+          <PageSection>
+            <PageSectionTitle>Finalizados</PageSectionTitle>
+            <div className="space-y-3">
+              {finishedBookings.map((booking) => (
+                <BookingItem key={booking.id} booking={booking} />
+              ))}
+            </div>
+          </PageSection>
+        )}
+
+        {bookings.length === 0 && (
+          <p className="text-muted-foreground text-center text-sm">
+            Você ainda não tem agendamentos.
+          </p>
+        )}
+      </PageContainer>
+      <Footer />
+    </main>
   );
 };
 
-export default BookingItem;
+export default BookingsPage;

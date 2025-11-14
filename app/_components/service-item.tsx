@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { BarbershopService, BarberShop } from "../generated/prisma/client";
-import { Button } from "./ui/button";
+import { Button } from "@/app/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -70,11 +70,10 @@ export function ServiceItem({ service }: ServiceItemProps) {
   today.setHours(0, 0, 0, 0);
 
   const handleConfirm = async () => {
-    const checkoutSessionResults = await executeCreateBookingCheckoutSession({
-      serviceId: service.id,
-      date: selectedDate!,
-    });
-
+    if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+      toast.error("Erro ao criar checkout session");
+      return;
+    }
     if (!selectedTime || !selectedDate) {
       return;
     }
@@ -83,29 +82,31 @@ export function ServiceItem({ service }: ServiceItemProps) {
     const minutes = timeSplitted[1];
     const date = new Date(selectedDate);
     date.setHours(Number(hours), Number(minutes));
-
+    const checkoutSessionResult = await executeCreateBookingCheckoutSession({
+      serviceId: service.id,
+      date,
+    });
     if (
-      checkoutSessionResults.serverError ||
-      checkoutSessionResults.validationErrors
+      checkoutSessionResult.serverError ||
+      checkoutSessionResult.validationErrors
     ) {
-      toast.error(checkoutSessionResults.validationErrors?._errors?.[0]);
+      toast.error(checkoutSessionResult.validationErrors?._errors?.[0]);
       return;
     }
-
     const stripe = await loadStripe(
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
     );
-
-    console.log(stripe);
-    console.log(checkoutSessionResults.data?.id);
-
-    if (!stripe || checkoutSessionResults.data?.id) {
-      toast.error("Erro ao carregar o stripe");
+    if (!stripe || !checkoutSessionResult.data?.id) {
+      toast.error("Erro ao carregar Stripe");
+      return;
     }
-
-    await stripe?.redirectToCheckout({
-      sessionId: checkoutSessionResults.data!.id,
+    await stripe.redirectToCheckout({
+      sessionId: checkoutSessionResult.data.id,
     });
+    // // 10:00
+    // if (!selectedTime || !selectedDate) {
+    //   return;
+    // }
 
     // const result = await executeAsync({
     //   serviceId: service.id,
@@ -162,7 +163,7 @@ export function ServiceItem({ service }: ServiceItemProps) {
             <SheetTitle className="text-lg font-bold">Fazer Reserva</SheetTitle>
           </SheetHeader>
 
-          <div className="relative z-[1] flex flex-col gap-4 px-5">
+          <div className="flex flex-col gap-4 px-5">
             <Calendar
               mode="single"
               selected={selectedDate}
@@ -177,7 +178,7 @@ export function ServiceItem({ service }: ServiceItemProps) {
             <>
               <Separator />
 
-              <div className="relative z-[5] flex gap-3 overflow-x-auto px-5 [&::-webkit-scrollbar]:hidden">
+              <div className="flex gap-3 overflow-x-auto px-5 [&::-webkit-scrollbar]:hidden">
                 {availableTimeSlots?.data?.map((time) => (
                   <Button
                     key={time}
